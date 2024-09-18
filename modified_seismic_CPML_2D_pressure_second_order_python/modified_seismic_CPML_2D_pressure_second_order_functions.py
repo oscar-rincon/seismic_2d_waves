@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 
 @njit
-def apply_pml_x(NX, DELTAX, USE_PML_XMIN, USE_PML_XMAX, xoriginleft, xoriginright, thickness_PML_x, d0_x, K_MAX_PML, ALPHA_MAX_PML, ZERO, NPOWER, DELTAT, d_x, K_x, alpha_x, d_x_half, K_x_half, alpha_x_half, b_x, b_x_half, a_x, a_x_half):
+def apply_pml_x(NX, DELTAX, USE_PML_XMIN, USE_PML_XMAX, xoriginleft, xoriginright, thickness_PML_x, d0_x, K_MAX_PML, ALPHA_MAX_PML, NPOWER, DELTAT, d_x, K_x, alpha_x, d_x_half, K_x_half, alpha_x_half, b_x, b_x_half, a_x, a_x_half):
     for i in range(0, NX):
 
         # Abscisa del punto de la malla actual a lo largo del perfil de amortiguamiento
@@ -16,7 +16,7 @@ def apply_pml_x(NX, DELTAX, USE_PML_XMIN, USE_PML_XMAX, xoriginleft, xoriginrigh
 
             # Definir perfil de amortiguamiento en los puntos de la malla
             abscissa_in_PML = xoriginleft - xval
-            if abscissa_in_PML >= ZERO:
+            if abscissa_in_PML >= 0.0:
                 abscissa_normalized = abscissa_in_PML / thickness_PML_x
                 d_x[i] = d0_x * abscissa_normalized**NPOWER
                 K_x[i] = 1.0 + (K_MAX_PML - 1.0) * abscissa_normalized**NPOWER
@@ -24,7 +24,7 @@ def apply_pml_x(NX, DELTAX, USE_PML_XMIN, USE_PML_XMAX, xoriginleft, xoriginrigh
 
             # Definir perfil de amortiguamiento en la mitad de los puntos de la malla
             abscissa_in_PML = xoriginleft - (xval + DELTAX / 2.0)
-            if abscissa_in_PML >= ZERO:
+            if abscissa_in_PML >= 0.0:
                 abscissa_normalized = abscissa_in_PML / thickness_PML_x
                 d_x_half[i] = d0_x * abscissa_normalized**NPOWER
                 K_x_half[i] = 1.0 + (K_MAX_PML - 1.0) * abscissa_normalized**NPOWER
@@ -35,7 +35,7 @@ def apply_pml_x(NX, DELTAX, USE_PML_XMIN, USE_PML_XMAX, xoriginleft, xoriginrigh
 
             # Definir perfil de amortiguamiento en los puntos de la malla
             abscissa_in_PML = xval - xoriginright
-            if abscissa_in_PML >= ZERO:
+            if abscissa_in_PML >= 0.0:
                 abscissa_normalized = abscissa_in_PML / thickness_PML_x
                 d_x[i] = d0_x * abscissa_normalized**NPOWER
                 K_x[i] = 1.0 + (K_MAX_PML - 1.0) * abscissa_normalized**NPOWER
@@ -43,14 +43,14 @@ def apply_pml_x(NX, DELTAX, USE_PML_XMIN, USE_PML_XMAX, xoriginleft, xoriginrigh
 
             # Definir perfil de amortiguamiento en la mitad de los puntos de la malla
             abscissa_in_PML = xval + DELTAX / 2.0 - xoriginright
-            if abscissa_in_PML >= ZERO:
+            if abscissa_in_PML >= 0.0:
                 abscissa_normalized = abscissa_in_PML / thickness_PML_x
                 d_x_half[i] = d0_x * abscissa_normalized**NPOWER
                 K_x_half[i] = 1.0 + (K_MAX_PML - 1.0) * abscissa_normalized**NPOWER
                 alpha_x_half[i] = ALPHA_MAX_PML * (1.0 - abscissa_normalized)
 
-        alpha_x[i] = max(alpha_x[i], ZERO)
-        alpha_x_half[i] = max(alpha_x_half[i], ZERO)
+        alpha_x[i] = max(alpha_x[i], 0.0)
+        alpha_x_half[i] = max(alpha_x_half[i], 0.0)
 
         # Calcular coeficientes de amortiguamiento
         b_x[i] = np.exp(- (d_x[i] / K_x[i] + alpha_x[i]) * DELTAT)
@@ -61,7 +61,7 @@ def apply_pml_x(NX, DELTAX, USE_PML_XMIN, USE_PML_XMAX, xoriginleft, xoriginrigh
 
 
 @njit
-def apply_pml_y(NY, DELTAY, USE_PML_YMIN, USE_PML_YMAX, yoriginbottom, yorigintop, ZERO, thickness_PML_y, d0_y, NPOWER, K_MAX_PML, ALPHA_MAX_PML, DELTAT, 
+def apply_pml_y(NY, DELTAY, USE_PML_YMIN, USE_PML_YMAX, yoriginbottom, yorigintop, thickness_PML_y, d0_y, NPOWER, K_MAX_PML, ALPHA_MAX_PML, DELTAT, 
               d_y, K_y, alpha_y, d_y_half, K_y_half, alpha_y_half, b_y, b_y_half, a_y, a_y_half):
     for j in range(NY):
         # Abscisa del punto de la malla actual a lo largo del perfil de amortiguamiento
@@ -71,7 +71,7 @@ def apply_pml_y(NY, DELTAY, USE_PML_YMIN, USE_PML_YMAX, yoriginbottom, yoriginto
         if USE_PML_YMIN:
             # Definir perfil de amortiguamiento en los puntos de la malla
             abscissa_in_PML = yoriginbottom - yval
-            if abscissa_in_PML >= ZERO:
+            if abscissa_in_PML >= 0.0:
                 abscissa_normalized = abscissa_in_PML / thickness_PML_y
                 d_y[j] = d0_y * abscissa_normalized**NPOWER
                 K_y[j] = 1.0 + (K_MAX_PML - 1.0) * abscissa_normalized**NPOWER
@@ -79,7 +79,7 @@ def apply_pml_y(NY, DELTAY, USE_PML_YMIN, USE_PML_YMAX, yoriginbottom, yoriginto
 
             # Definir perfil de amortiguamiento en la mitad de los puntos de la malla
             abscissa_in_PML = yoriginbottom - (yval + DELTAY / 2.0)
-            if abscissa_in_PML >= ZERO:
+            if abscissa_in_PML >= 0.0:
                 abscissa_normalized = abscissa_in_PML / thickness_PML_y
                 d_y_half[j] = d0_y * abscissa_normalized**NPOWER
                 K_y_half[j] = 1.0 + (K_MAX_PML - 1.0) * abscissa_normalized**NPOWER
@@ -89,7 +89,7 @@ def apply_pml_y(NY, DELTAY, USE_PML_YMIN, USE_PML_YMAX, yoriginbottom, yoriginto
         if USE_PML_YMAX:
             # Definir perfil de amortiguamiento en los puntos de la malla
             abscissa_in_PML = yval - yorigintop
-            if abscissa_in_PML >= ZERO:
+            if abscissa_in_PML >= 0.0:
                 abscissa_normalized = abscissa_in_PML / thickness_PML_y
                 d_y[j] = d0_y * abscissa_normalized**NPOWER
                 K_y[j] = 1.0 + (K_MAX_PML - 1.0) * abscissa_normalized**NPOWER
@@ -97,7 +97,7 @@ def apply_pml_y(NY, DELTAY, USE_PML_YMIN, USE_PML_YMAX, yoriginbottom, yoriginto
 
             # Definir perfil de amortiguamiento en la mitad de los puntos de la malla
             abscissa_in_PML = yval + DELTAY / 2.0 - yorigintop
-            if abscissa_in_PML >= ZERO:
+            if abscissa_in_PML >= 0.0:
                 abscissa_normalized = abscissa_in_PML / thickness_PML_y
                 d_y_half[j] = d0_y * abscissa_normalized**NPOWER
                 K_y_half[j] = 1.0 + (K_MAX_PML - 1.0) * abscissa_normalized**NPOWER
@@ -113,9 +113,9 @@ def apply_pml_y(NY, DELTAY, USE_PML_YMIN, USE_PML_YMAX, yoriginbottom, yoriginto
             a_y_half[j] = d_y_half[j] * (b_y_half[j] - 1.0) / (K_y_half[j] * (d_y_half[j] + K_y_half[j] * alpha_y_half[j]))
 
 @njit 
-def find_nearest_grid_points(NREC, NX, NY, DELTAX, DELTAY, xrec, yrec, ix_rec, iy_rec, HUGEVAL):
+def find_nearest_grid_points(NREC, NX, NY, DELTAX, DELTAY, xrec, yrec, ix_rec, iy_rec):
     for irec in range(NREC):
-        dist = HUGEVAL
+        dist = 1e+20
         for j in range(1, NY + 1):
             for i in range(1, NX + 1):
                 distval = np.sqrt((DELTAX * (i - 1) - xrec[irec])**2 + (DELTAY * (j - 1) - yrec[irec])**2)
